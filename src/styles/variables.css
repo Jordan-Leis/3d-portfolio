@@ -1,0 +1,7 @@
+:root {
+  --color-bg: #0a0a0a;
+  --color-amber: #ffb347;
+  --color-green: #39ff14;
+  --color-fg: #ffb347;
+  --font-mono: ui-monospace, "VT323", "Courier New", monospace;
+}
