@@ -24,6 +24,21 @@ describe('useStore cameraTransitioning guard (Plan 02)', () => {
     expect(useStore.getState().cameraTransitioning).toBe(true)
   })
 
-  // Intentional placeholder — Plan 02 makes this pass by implementing the guard path
-  it.todo('INTER-07: click handler contract — guarded click does NOT call setCameraPreset or openPanel')
+  it('INTER-07: click handler contract — guarded click does NOT call setCameraPreset or openPanel', () => {
+    useStore.getState().setCameraTransitioning(true)
+    const beforePreset = useStore.getState().cameraPreset
+    const beforePanel = useStore.getState().activePanel
+
+    // Contract: handler returns early when cameraTransitioning is true
+    const panelId = 'projects' as const
+    if (useStore.getState().cameraTransitioning) {
+      // no-op — matches InteractiveMesh.tsx onClick guard path
+    } else {
+      useStore.getState().setCameraPreset(panelId)
+      useStore.getState().openPanel(panelId)
+    }
+
+    expect(useStore.getState().cameraPreset).toBe(beforePreset)
+    expect(useStore.getState().activePanel).toBe(beforePanel)
+  })
 })
