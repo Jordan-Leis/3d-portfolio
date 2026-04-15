@@ -1,39 +1,72 @@
-// DesktopLayout — Phase 2 Canvas host. This file is lazy-imported from
-// src/App.tsx so Three.js lives in a separate chunk and never downloads
-// on mobile. Safe to import 'three'/@react-three/* here.
+// DesktopLayout — Phase 2 Canvas host extended in Phase 3 with BIOSScreen,
+// PanelLayer, and HintOverlay siblings + VIS-04 pointer-events toggle.
 //
-// Leva renders its panel to a DOM portal; it is placed as a sibling of
-// the Canvas and hidden in production builds.
+// Architecture:
+//   outer div (position: relative)
+//     ├── canvas wrapper div (pointer-events toggle — VIS-04)
+//     │     └── Canvas (Scene, CameraRig, AdaptiveDpr)
+//     ├── BIOSScreen                (zIndex 100 — DIFF-01)
+//     ├── PanelLayer                (backdrop zIndex 10 + panel zIndex 20)
+//     ├── HintOverlay               (zIndex 5, pointer-events none)
+//     └── Leva (DOM portal — dev only)
+//
+// DesktopLayout is the lazy chunk root (CLAUDE.md Rule 4) — all Three.js
+// and framer-motion imports live here or below.
 import { Canvas } from '@react-three/fiber'
 import { Suspense } from 'react'
 import { AdaptiveDpr } from '@react-three/drei'
 import { Leva } from 'leva'
 import CameraRig from '@/components/3d/CameraRig'
 import Scene from '@/components/3d/Scene'
+import BIOSScreen from '@/components/ui/BIOSScreen'
+import PanelLayer from '@/components/ui/PanelLayer'
+import HintOverlay from '@/components/ui/HintOverlay'
+import { useStore } from '@/store/useStore'
 
 export default function DesktopLayout() {
+  const activePanel = useStore((s) => s.activePanel)
+
   return (
     <div
       style={{
         width: '100vw',
         height: '100vh',
         background: 'var(--color-bg)',
+        position: 'relative',
       }}
     >
-      <Canvas
-        shadows
-        dpr={[1, 2]}
-        frameloop="always"
-        camera={{ fov: 50, near: 0.1, far: 100, position: [0, 3, 7] }}
-        gl={{ antialias: true }}
+      {/* Canvas wrapper — VIS-04: pointer-events cascade to the inner <canvas>
+          element so R3F stops intercepting clicks while a panel is open. Applied
+          to the wrapper, NOT the Canvas component. */}
+      <div
+        data-testid="canvas-wrapper"
+        style={{
+          position: 'absolute',
+          inset: 0,
+          pointerEvents: activePanel ? 'none' : 'auto',
+        }}
       >
-        <Suspense fallback={null}>
-          <Scene />
-          <CameraRig />
-          <AdaptiveDpr pixelated />
-        </Suspense>
-      </Canvas>
-      {/* Leva panel — tree-shaken to hidden in production builds */}
+        <Canvas
+          shadows
+          dpr={[1, 2]}
+          frameloop="always"
+          camera={{ fov: 50, near: 0.1, far: 100, position: [0, 3, 7] }}
+          gl={{ antialias: true }}
+        >
+          <Suspense fallback={null}>
+            <Scene />
+            <CameraRig />
+            <AdaptiveDpr pixelated />
+          </Suspense>
+        </Canvas>
+      </div>
+
+      {/* DOM overlays — siblings of the Canvas wrapper, stacked by zIndex */}
+      <BIOSScreen />
+      <PanelLayer />
+      <HintOverlay />
+
+      {/* Leva panel — unchanged from Phase 2, tree-shaken in prod */}
       <Leva hidden={!import.meta.env.DEV} />
     </div>
   )

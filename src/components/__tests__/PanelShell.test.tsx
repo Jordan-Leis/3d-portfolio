@@ -1,10 +1,32 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { useStore } from '@/store/useStore'
 import ProjectsPanel from '@/components/ui/panels/ProjectsPanel'
 import AboutPanel from '@/components/ui/panels/AboutPanel'
 import ContactPanel from '@/components/ui/panels/ContactPanel'
 import PanelLayer from '@/components/ui/PanelLayer'
+
+// Mocks required for DesktopLayout VIS-04 tests
+vi.mock('@react-three/fiber', () => ({
+  Canvas: ({ children }: { children: React.ReactNode }) => <div data-testid="canvas-stub">{children}</div>,
+}))
+vi.mock('@react-three/drei', () => ({
+  AdaptiveDpr: () => null,
+  useProgress: () => ({ active: false, progress: 0, item: '', loaded: 0, total: 0 }),
+}))
+vi.mock('leva', () => ({
+  Leva: () => null,
+  useControls: () => ({}),
+  button: () => ({}),
+}))
+vi.mock('@/components/3d/CameraRig', () => ({
+  default: () => null,
+}))
+vi.mock('@/components/3d/Scene', () => ({
+  default: () => null,
+}))
+
+import DesktopLayout from '@/components/ui/DesktopLayout'
 
 function resetStore() {
   useStore.setState({
@@ -135,9 +157,20 @@ describe('Panel shells — VIS-03 (dismissal vectors)', () => {
   })
 })
 
-describe('Panel shells — VIS-04 (pointer-event layering)', () => {
-  // VIS-04 is implemented in Plan 04 (DesktopLayout modification).
-  // These tests are intentionally left as it.todo so Plan 04 converts them.
-  it.todo('VIS-04: DesktopLayout canvas wrapper has pointerEvents: "auto" when activePanel === null')
-  it.todo('VIS-04: DesktopLayout canvas wrapper has pointerEvents: "none" when activePanel !== null')
+describe('DesktopLayout VIS-04 pointer-events toggle', () => {
+  beforeEach(resetStore)
+
+  it('VIS-04: canvas wrapper has pointerEvents: "auto" when activePanel === null', () => {
+    useStore.setState({ activePanel: null })
+    const { getByTestId } = render(<DesktopLayout />)
+    const wrapper = getByTestId('canvas-wrapper')
+    expect(wrapper.style.pointerEvents).toBe('auto')
+  })
+
+  it('VIS-04: canvas wrapper has pointerEvents: "none" when activePanel !== null', () => {
+    useStore.setState({ activePanel: 'projects' })
+    const { getByTestId } = render(<DesktopLayout />)
+    const wrapper = getByTestId('canvas-wrapper')
+    expect(wrapper.style.pointerEvents).toBe('none')
+  })
 })
