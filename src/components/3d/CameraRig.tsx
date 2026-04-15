@@ -64,6 +64,7 @@ export default function CameraRig() {
     return () => {
       gsap.killTweensOf(camera.position)
       gsap.killTweensOf(lookAtTarget.current)
+      setCameraTransitioning(false)
     }
   }, [cameraPreset, camera, setCameraTransitioning])
 
