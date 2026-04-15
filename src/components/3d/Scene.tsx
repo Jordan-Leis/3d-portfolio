@@ -64,7 +64,7 @@ export default function Scene() {
       <PlaceholderDesk />
       {/* BakeShadows AFTER geometry — drei bakes once from what is mounted */}
       <BakeShadows />
-      <CameraDebugPanel />
+      {import.meta.env.DEV && <CameraDebugPanel />}
     </>
   )
 }
