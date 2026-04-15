@@ -1,7 +1,8 @@
+/// <reference types="vitest" />
 // CRITICAL: base must match the GitHub Pages subdirectory '/3d-portfolio/'.
 // Changing it after first deploy breaks every deployed asset URL.
 // Research: 01-RESEARCH.md Topic 1 + Pitfall 1.
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import glsl from 'vite-plugin-glsl'
 
@@ -17,6 +18,14 @@ export default defineConfig({
     alias: {
       '@': '/src',
     },
+  },
+
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: ['./src/test-setup.ts'],
+    css: false,
+    include: ['src/**/*.{test,spec}.{ts,tsx}'],
   },
 
   build: {
