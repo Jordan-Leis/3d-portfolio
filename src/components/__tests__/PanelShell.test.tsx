@@ -40,22 +40,19 @@ function resetStore() {
 describe('Panel shells — VIS-02 (AnimatePresence entry/exit)', () => {
   beforeEach(resetStore)
 
-  it('VIS-02: ProjectsPanel renders heading "PROJECTS" and placeholder body', () => {
+  it('VIS-02: ProjectsPanel renders heading "PROJECTS"', () => {
     render(<ProjectsPanel />)
     expect(screen.getByRole('heading', { name: 'PROJECTS' })).toBeInTheDocument()
-    expect(screen.getByText('[Projects content — Phase 4]')).toBeInTheDocument()
   })
 
   it('VIS-02: AboutPanel renders heading "ABOUT"', () => {
     render(<AboutPanel />)
     expect(screen.getByRole('heading', { name: 'ABOUT' })).toBeInTheDocument()
-    expect(screen.getByText('[About content — Phase 4]')).toBeInTheDocument()
   })
 
   it('VIS-02: ContactPanel renders heading "CONTACT"', () => {
     render(<ContactPanel />)
     expect(screen.getByRole('heading', { name: 'CONTACT' })).toBeInTheDocument()
-    expect(screen.getByText('[Contact content — Phase 4]')).toBeInTheDocument()
   })
 
   it('VIS-02: PanelLayer with activePanel=null renders neither panel nor backdrop', () => {
