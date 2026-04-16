@@ -1,15 +1,59 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
+import { render, screen } from '@testing-library/react'
+import AboutPanel from '@/components/ui/panels/AboutPanel'
+import { useStore } from '@/store/useStore'
+
+function resetStore() {
+  useStore.setState({
+    activePanel: null,
+    cameraPreset: 'home',
+    cameraTransitioning: false,
+    hoveredObject: null,
+  })
+}
 
 describe('AboutPanel content (Phase 4)', () => {
-  // Sentinel: vitest v2.1 requires one runnable it() per describe block alongside it.todo stubs.
-  // STATE.md Active Decision [03-01].
-  it('sentinel: describe block is live', () => {
-    expect(true).toBe(true)
+  beforeEach(resetStore)
+
+  it('ABOUT-01: renders bio paragraph with non-placeholder text', () => {
+    useStore.setState({ activePanel: 'about' })
+    render(<AboutPanel />)
+    // BIO section heading + a paragraph that is not empty and not the Phase 3 placeholder
+    expect(screen.getByRole('heading', { name: 'BIO' })).toBeInTheDocument()
+    expect(screen.queryByText(/\[About content — Phase 4\]/)).toBeNull()
   })
 
-  it.todo('ABOUT-01: renders bio paragraph element with real content (not placeholder)')
-  it.todo('ABOUT-01: renders avatar image element with alt="Jordan Leis — headshot" or ASCII placeholder')
-  it.todo('ABOUT-02: renders ExperienceTimeline with at least one entry')
-  it.todo('ABOUT-03: renders SkillTags with at least one skill tag')
-  it.todo('ABOUT-03: renders side interests text below skill tags')
+  it('ABOUT-01: renders avatar element (image or placeholder) with descriptive alt/aria-label', () => {
+    useStore.setState({ activePanel: 'about' })
+    render(<AboutPanel />)
+    const avatar = screen.getByRole('img', { name: /Jordan Leis/i })
+    expect(avatar).toBeInTheDocument()
+  })
+
+  it('ABOUT-02: renders EXPERIENCE section with at least one entry', () => {
+    useStore.setState({ activePanel: 'about' })
+    render(<AboutPanel />)
+    expect(screen.getByRole('heading', { name: 'EXPERIENCE' })).toBeInTheDocument()
+    // ExperienceTimeline renders role="list" with listitems
+    const timeline = screen.getByRole('list', { name: 'Experience timeline' })
+    expect(timeline).toBeInTheDocument()
+    const entries = timeline.querySelectorAll('[role="listitem"]')
+    expect(entries.length).toBeGreaterThanOrEqual(1)
+  })
+
+  it('ABOUT-03: renders SKILLS section with at least one skill tag', () => {
+    useStore.setState({ activePanel: 'about' })
+    render(<AboutPanel />)
+    expect(screen.getByRole('heading', { name: 'SKILLS' })).toBeInTheDocument()
+    const skillsList = screen.getByRole('list', { name: 'Skills' })
+    const tags = skillsList.querySelectorAll('[role="listitem"]')
+    expect(tags.length).toBeGreaterThanOrEqual(1)
+  })
+
+  it('Phase 3 regression: still renders ABOUT h2 and close button', () => {
+    useStore.setState({ activePanel: 'about' })
+    render(<AboutPanel />)
+    expect(screen.getByRole('heading', { name: 'ABOUT' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Close panel' })).toBeInTheDocument()
+  })
 })
