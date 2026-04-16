@@ -140,17 +140,18 @@ describe('Panel shells — VIS-03 (dismissal vectors)', () => {
   })
 
   it('AnimatePresence mode="wait" is set on the panel AnimatePresence (prevents two panels visible at once)', () => {
-    // Smoke test: mount PanelLayer, confirm only ONE h2 exists at any time.
+    // Smoke test: mount PanelLayer, confirm only ONE h2 (panel-level heading) exists at any time.
+    // Content sub-headings (h3) are expected — we scope to level 2 only.
     useStore.setState({ activePanel: 'projects' })
     const { rerender } = render(<PanelLayer />)
-    expect(screen.queryAllByRole('heading').length).toBe(1)
+    expect(screen.queryAllByRole('heading', { level: 2 }).length).toBe(1)
 
     useStore.setState({ activePanel: 'about' })
     rerender(<PanelLayer />)
-    // During the crossfade window, mode='wait' ensures at most ONE heading is in the DOM
+    // During the crossfade window, mode='wait' ensures at most ONE h2 heading is in the DOM
     // at any given render. The test above is the strongest we can do in jsdom where
     // animations run instantly.
-    expect(screen.queryAllByRole('heading').length).toBe(1)
+    expect(screen.queryAllByRole('heading', { level: 2 }).length).toBe(1)
   })
 })
 

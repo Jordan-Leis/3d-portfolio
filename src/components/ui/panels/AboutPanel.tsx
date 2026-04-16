@@ -1,9 +1,13 @@
 import { motion } from 'framer-motion'
 import { useStore } from '@/store/useStore'
+import { usePanelFocusTrap } from '@/hooks/usePanelFocusTrap'
+import AboutContent from '@/components/ui/panels/AboutContent'
 
 export default function AboutPanel() {
   const closePanel = useStore((s) => s.closePanel)
   const setCameraPreset = useStore((s) => s.setCameraPreset)
+  const activePanel = useStore((s) => s.activePanel)
+  const containerRef = usePanelFocusTrap(activePanel === 'about')
 
   // CAMERA-03: every close path returns the camera to the home preset
   const handleClose = () => {
@@ -31,6 +35,7 @@ export default function AboutPanel() {
         padding: '24px',
         zIndex: 20,
       }}
+      ref={containerRef}
       onClick={(e) => e.stopPropagation()}
     >
       <button
@@ -50,7 +55,7 @@ export default function AboutPanel() {
         ×
       </button>
       <h2 style={{ margin: 0, marginBottom: 16, fontSize: 20 }}>ABOUT</h2>
-      <p style={{ opacity: 0.5 }}>[About content — Phase 4]</p>
+      <AboutContent />
     </motion.div>
   )
 }
