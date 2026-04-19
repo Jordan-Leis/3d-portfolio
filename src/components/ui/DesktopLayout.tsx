@@ -21,6 +21,7 @@ import Scene from '@/components/3d/Scene'
 import BIOSScreen from '@/components/ui/BIOSScreen'
 import PanelLayer from '@/components/ui/PanelLayer'
 import HintOverlay from '@/components/ui/HintOverlay'
+import SceneErrorBoundary from '@/components/ui/SceneErrorBoundary'
 import { useStore } from '@/store/useStore'
 
 export default function DesktopLayout() {
@@ -35,31 +36,38 @@ export default function DesktopLayout() {
         position: 'relative',
       }}
     >
-      {/* Canvas wrapper — VIS-04: pointer-events cascade to the inner <canvas>
-          element so R3F stops intercepting clicks while a panel is open. Applied
-          to the wrapper, NOT the Canvas component. */}
-      <div
-        data-testid="canvas-wrapper"
-        style={{
-          position: 'absolute',
-          inset: 0,
-          pointerEvents: activePanel ? 'none' : 'auto',
-        }}
-      >
-        <Canvas
-          shadows
-          dpr={[1, 2]}
-          frameloop="always"
-          camera={{ fov: 50, near: 0.1, far: 100, position: [0, 3, 7] }}
-          gl={{ antialias: true }}
+      {/* SceneErrorBoundary — catches GLB load failures (T-05-03-02) and renders
+          the locked fallback copy instead of an infinite BIOSScreen spinner.
+          Sits OUTSIDE the Canvas so its fallback <div> renders as plain DOM.
+          DOM overlays (BIOSScreen, PanelLayer, HintOverlay) are siblings outside
+          the boundary so they remain mounted on 3D load failure. */}
+      <SceneErrorBoundary>
+        {/* Canvas wrapper — VIS-04: pointer-events cascade to the inner <canvas>
+            element so R3F stops intercepting clicks while a panel is open. Applied
+            to the wrapper, NOT the Canvas component. */}
+        <div
+          data-testid="canvas-wrapper"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            pointerEvents: activePanel ? 'none' : 'auto',
+          }}
         >
-          <Suspense fallback={null}>
-            <Scene />
-            <CameraRig />
-            <AdaptiveDpr pixelated />
-          </Suspense>
-        </Canvas>
-      </div>
+          <Canvas
+            shadows
+            dpr={[1, 2]}
+            frameloop="always"
+            camera={{ fov: 50, near: 0.1, far: 100, position: [0, 3, 7] }}
+            gl={{ antialias: true }}
+          >
+            <Suspense fallback={null}>
+              <Scene />
+              <CameraRig />
+              <AdaptiveDpr pixelated />
+            </Suspense>
+          </Canvas>
+        </div>
+      </SceneErrorBoundary>
 
       {/* DOM overlays — siblings of the Canvas wrapper, stacked by zIndex */}
       <BIOSScreen />

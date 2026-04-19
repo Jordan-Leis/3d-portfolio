@@ -7,7 +7,7 @@
 import { Environment, BakeShadows } from '@react-three/drei'
 import { useControls, button, Leva } from 'leva'
 import { useStore } from '@/store/useStore'
-import PlaceholderDesk from './PlaceholderDesk'
+import DeskScene from './DeskScene'
 
 // Leva control component — rendered inside the R3F scene tree (returns null).
 // React context propagates through R3F's Canvas renderer, so useControls()
@@ -61,7 +61,7 @@ export default function Scene() {
   return (
     <>
       <Lighting />
-      <PlaceholderDesk />
+      <DeskScene />
       {/* BakeShadows AFTER geometry — drei bakes once from what is mounted */}
       <BakeShadows />
       {import.meta.env.DEV && <CameraDebugPanel />}
