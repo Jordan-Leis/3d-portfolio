@@ -12,22 +12,43 @@ vi.mock('@/components/3d/InteractiveMesh', () => ({
 }))
 
 // Mock useGLTF so the test never touches WebGL or the file system.
-// The mock node names below are PLACEHOLDERS — Plan 03 updates these to match the
-// gltfjsx-generated names from the actual GLB. Test assertions below depend ONLY on
-// the testid output of the InteractiveMesh mock, NOT on these node names.
+// Node names match the actual gltfjsx-emitted names from the GLB
+// (gltfjsx converts "Cube.000" → "Cube000", ".001" → "001").
+// See 05-02-MODEL-NOTES.md for the full node inventory.
 vi.mock('@react-three/drei', () => {
   const useGLTF = Object.assign(
     () => ({
       nodes: {
-        Monitor_Screen: { geometry: {} },
-        Monitor_Body: { geometry: {} },
-        Papers: { geometry: {} },
-        Phone: { geometry: {} },
-        Lamp: { geometry: {} },
-        Desk_Surface: { geometry: {} },
-        Scene_Floor: { geometry: {} },
+        // Interactive meshes (mapped via MESH_MAP in DeskScene.tsx)
+        Computer_monitor001_ComputerDesk_0: { geometry: {}, material: {} },
+        Phone_stand_ComputerDesk_0:         { geometry: {}, material: {} },
+        Paper_ComputerDesk_0:               { geometry: {}, material: {} },
+        // Monitor body and desk surface
+        Cube000_ComputerDesk_0:             { geometry: {}, material: {} },
+        Office_desk_ComputerDesk_0:         { geometry: {}, material: {} },
+        // Static decorative meshes
+        KeyboardCable_ComputerDesk_0:       { geometry: {}, material: {} },
+        Paper2_ComputerDesk_0:              { geometry: {}, material: {} },
+        Monitor_cable_ComputerDesk_0:       { geometry: {}, material: {} },
+        Speakers_cable_ComputerDesk_0:      { geometry: {}, material: {} },
+        Mouse_cord_ComputerDesk_0:          { geometry: {}, material: {} },
+        CD_ComputerDesk_0:                  { geometry: {}, material: {} },
+        Drawers_ComputerDesk_0:             { geometry: {}, material: {} },
+        Phonehandle_ComputerDesk_0:         { geometry: {}, material: {} },
+        CD_case_ComputerDesk_0:             { geometry: {}, material: {} },
+        Pen_ComputerDesk_0:                 { geometry: {}, material: {} },
+        Floppy_disk_FloppyDisk_0:           { geometry: {}, material: {} },
+        Keyboard_ComputerDesk_0:            { geometry: {}, material: {} },
+        SpeakerR_ComputerDesk_0:            { geometry: {}, material: {} },
+        SpeakerL_ComputerDesk_0:            { geometry: {}, material: {} },
+        Mousepad_ComputerDesk_0:            { geometry: {}, material: {} },
+        Mouse_ComputerDesk_0:               { geometry: {}, material: {} },
+        Computer_case_ComputerDesk_0:       { geometry: {}, material: {} },
       },
-      materials: {},
+      materials: {
+        ComputerDesk: {},
+        FloppyDisk: {},
+      },
     }),
     { setDecoderPath: vi.fn(), preload: vi.fn() }
   )
@@ -53,16 +74,22 @@ describe('DeskScene interactive meshes (SCENE-01, SCENE-04)', () => {
     expect(el.getAttribute('data-panel-id')).toBe('projects')
   })
 
-  it('SCENE-01: about-prop InteractiveMesh is mounted with panelId="about" (papers OR substitute)', () => {
+  it('SCENE-01: about-prop InteractiveMesh is mounted with panelId="about" (phone-stand — mapped from Phone_stand_ComputerDesk_0 in MODEL-NOTES.md)', () => {
     render(<DeskScene />)
-    const el = screen.getByTestId(/^interactive-(papers|notebook|book|stapler|coffee)$/)
+    // "phone-stand" is the semantic name chosen for Phone_stand_ComputerDesk_0 → About panel.
+    // Regex includes original options + "phone-stand" (the chosen name from MODEL-NOTES.md).
+    // Uses exact match excluding "papers" so it doesn't collide with the contact-prop testid.
+    const el = screen.getByTestId(/^interactive-(notebook|book|stapler|coffee|phone-stand)$/)
     expect(el).toBeInTheDocument()
     expect(el.getAttribute('data-panel-id')).toBe('about')
   })
 
-  it('SCENE-01: contact-prop InteractiveMesh is mounted with panelId="contact" (phone OR substitute)', () => {
+  it('SCENE-01: contact-prop InteractiveMesh is mounted with panelId="contact" (papers — mapped from Paper_ComputerDesk_0 in MODEL-NOTES.md)', () => {
     render(<DeskScene />)
-    const el = screen.getByTestId(/^interactive-(phone|postcard|telephone|radio|mug)$/)
+    // "papers" is the semantic name chosen for Paper_ComputerDesk_0 → Contact panel.
+    // Regex includes original options + "papers" (the chosen name from MODEL-NOTES.md).
+    // Uses exact match excluding "phone-stand" so it doesn't collide with the about-prop testid.
+    const el = screen.getByTestId(/^interactive-(phone|postcard|telephone|radio|mug|papers)$/)
     expect(el).toBeInTheDocument()
     expect(el.getAttribute('data-panel-id')).toBe('contact')
   })
