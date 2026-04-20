@@ -77,13 +77,14 @@ export default function Scene() {
         <Bloom
           luminanceThreshold={0.4}
           luminanceSmoothing={0.1}
-          intensity={1.5}
+          intensity={0.6}
           radius={0.4}
           mipmapBlur
         />
+        {/* Subtle scanlines — MULTIPLY darkens alternating rows without colour cast */}
         <Scanline
-          blendFunction={BlendFunction.OVERLAY}
-          density={1.5}
+          blendFunction={BlendFunction.MULTIPLY}
+          density={1.25}
         />
         <Vignette
           eskil={false}

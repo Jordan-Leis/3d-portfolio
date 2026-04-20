@@ -87,7 +87,7 @@ export default function DeskScene() {
   const { nodes, materials } = useGLTF('/3d-portfolio/models/desk-draco.glb') as GLTFResult
 
   return (
-    <group name="desk-scene" dispose={null}>
+    <group name="desk-scene" dispose={null} scale={0.02} position={[0, -1.5, 0]}>
       {/* Non-interactive desk surface — accept GLTF-baked material (D-09) */}
       {MESH_MAP.desk && nodes[MESH_MAP.desk] && (
         <mesh
