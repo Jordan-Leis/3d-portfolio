@@ -6,7 +6,7 @@
 // The three interactive meshes (monitor, papers, phone) use this wrapper.
 // Non-interactive meshes (lamp, desk-surface, scene-floor) stay as plain <mesh>.
 import { useRef, useEffect } from 'react'
-import type { MeshStandardMaterial } from 'three'
+import type { BufferGeometry, MeshStandardMaterial } from 'three'
 import { useStore } from '@/store/useStore'
 import type { PanelId } from '@/store/useStore'
 
@@ -14,7 +14,12 @@ interface InteractiveMeshProps {
   panelId: PanelId
   name: string
   position: [number, number, number]
-  args: [number, number, number]
+  args?: [number, number, number]
+  geometry?: BufferGeometry
+  rotation?: [number, number, number]
+  scale?: [number, number, number] | number
+  transparent?: boolean
+  opacity?: number
   color: string
   emissive: string
   emissiveIntensity?: number
@@ -28,6 +33,11 @@ export default function InteractiveMesh({
   name,
   position,
   args,
+  geometry,
+  rotation,
+  scale,
+  transparent,
+  opacity,
   color,
   emissive,
   emissiveIntensity = 0.4,
@@ -53,8 +63,11 @@ export default function InteractiveMesh({
     <mesh
       name={name}
       position={position}
+      rotation={rotation}
+      scale={scale}
       castShadow={castShadow}
       receiveShadow={receiveShadow}
+      geometry={geometry}
       onPointerOver={(e) => {
         e.stopPropagation()
         if (materialRef.current) {
@@ -80,12 +93,14 @@ export default function InteractiveMesh({
         openPanel(panelId)
       }}
     >
-      <boxGeometry args={args} />
+      {!geometry && <boxGeometry args={args} />}
       <meshStandardMaterial
         ref={materialRef}
         color={color}
         emissive={emissive}
         emissiveIntensity={emissiveIntensity}
+        transparent={transparent}
+        opacity={opacity}
       />
     </mesh>
   )

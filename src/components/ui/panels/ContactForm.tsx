@@ -105,7 +105,7 @@ function LiveForm() {
           required
           style={inputBaseStyle}
         />
-        <ValidationError field="name" prefix="Name" errors={state.errors} className="form-error" as="span" />
+        <ValidationError field="name" prefix="Name" errors={state.errors} className="form-error" />
       </div>
 
       <div style={fieldGroupStyle}>
@@ -117,7 +117,7 @@ function LiveForm() {
           required
           style={inputBaseStyle}
         />
-        <ValidationError field="email" prefix="Email" errors={state.errors} className="form-error" as="span" />
+        <ValidationError field="email" prefix="Email" errors={state.errors} className="form-error" />
       </div>
 
       <div style={fieldGroupStyle}>
@@ -129,11 +129,11 @@ function LiveForm() {
           required
           style={textareaStyle}
         />
-        <ValidationError field="message" prefix="Message" errors={state.errors} className="form-error" as="span" />
+        <ValidationError field="message" prefix="Message" errors={state.errors} className="form-error" />
       </div>
 
       {/* Top-level form errors (e.g., network failure) */}
-      <ValidationError errors={state.errors} className="form-error" as="div" />
+      <ValidationError errors={state.errors} className="form-error" />
 
       <button
         type="submit"
