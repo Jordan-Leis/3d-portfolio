@@ -11,14 +11,17 @@ Jordan's 3D Portfolio — a personal portfolio website built as an immersive vin
 scene. Visitors explore an 80s/90s-era workspace (CRT monitor, desk lamp, scattered papers)
 and click interactive objects to reveal About, Projects, and Contact panels.
 
-**Current status:** Phase 1 (Foundation & Infrastructure) is complete. Phase 2 (3D Scene
-Scaffold) is in progress. `DesktopLayout` and `MobileLayout` are stubs — neither has real
-content yet.
+**Current status:** Phases 1–5 are implemented. The 3D experience is real: `DesktopLayout`
+mounts a `<Canvas>` with `DeskScene` (a Draco-compressed GLB desk loaded via `useGLTF`),
+interactive meshes (monitor→Projects, phone-stand→About, papers→Contact) with hover-driven
+emissive glow, a `CameraRig`, `SceneErrorBoundary`, and an EffectComposer postprocessing
+stack (Bloom + Scanline + Vignette). All three content panels (About, Projects, Contact) are
+authored with focus-trap accessibility, and `MobileLayout` is a full 2D fallback page with a
+scanline overlay. The suite is 109 passing tests across 18 files.
 
 **Deployment target:** GitHub Pages at `https://<user>.github.io/3d-portfolio/`
 
-**Platform:** Desktop + WebGL only for 3D; mobile renders a 2D fallback (content arrives
-Phase 4).
+**Platform:** Desktop + WebGL only for 3D; mobile renders a 2D fallback.
 
 ---
 
@@ -65,29 +68,50 @@ Exact installed versions from `package.json`:
     App.tsx                      # Mobile/WebGL gate + React.lazy DesktopLayout
     main.tsx                     # StrictMode entry point
     components/
-      3d/                        # Empty — Phase 2+ Three.js scene components go here
+      3d/                        # R3F scene components
+        Scene.tsx                # <Canvas> contents: lights, DeskScene, CameraRig, EffectComposer
+        DeskScene.tsx            # GLB desk (useGLTF) + interactive/visual mesh layers
+        InteractiveMesh.tsx      # Raycast wrapper: cursor, hover glow, panel routing
+        CameraRig.tsx            # GSAP camera transitions driven by cameraPreset
       ui/
-        DesktopLayout.tsx        # Phase 1 stub; becomes <Canvas> root in Phase 2
+        DesktopLayout.tsx        # <Canvas> root wrapped in SceneErrorBoundary + PanelLayer
+        SceneErrorBoundary.tsx   # Class component; catches WebGL/render errors
+        BIOSScreen.tsx           # Retro boot-screen loading UI
+        HintOverlay.tsx          # "click an object" hint prompt
+        PanelLayer.tsx           # AnimatePresence host for the active panel
+        panels/                  # About/Projects/Contact panels + their content + tests
       mobile/
-        MobileLayout.tsx         # Phase 1 stub; 2D content arrives Phase 4
+        MobileLayout.tsx         # Full 2D fallback page (hero + 3 sections + footer)
+        ScanlineOverlay.tsx      # CRT scanline effect for the 2D page
+      __tests__/                 # Component tests (Scene, DeskScene, PanelShell, ...)
     hooks/
       useIsMobile.ts             # matchMedia(max-width: 767px) — fires at breakpoint only
       useWebGL.ts                # isWebGLAvailable() — canvas probe, no hook, pure function
+      usePanelClose.ts           # Esc / backdrop close handling for panels
+      usePanelFocusTrap.ts       # Focus trap for open panels (a11y)
     store/
       useStore.ts                # Zustand v5 global store (see Architecture Rules)
-    config/                      # Empty — future camera presets, scene constants
+    config/
+      cameraPresets.ts           # Named camera positions per panel
+      projects.ts                # Projects panel card data
+      social.ts                  # Social link data
     styles/
       globals.css                # box-sizing reset, base font/bg/color, imports variables.css
       variables.css              # CSS custom properties (see Design Tokens)
+    test-setup.ts                # Vitest + Testing Library setup
     vite-env.d.ts
   public/
-    fonts/                       # Empty — VT323 font files go here
-    models/                      # Empty — GLB/Draco compressed desk model goes here
-    textures/                    # Empty — CRT and paper textures go here
+    fonts/                       # VT323 font files (currently empty)
+    models/
+      desk-draco.glb             # Draco-compressed desk model (~80KB)
+    draco/                       # Draco WASM decoder (decoder.js/.wasm, encoder, wrapper)
+    textures/                    # CRT and paper textures (currently empty)
+    .nojekyll                    # Prevent GitHub Pages Jekyll processing
   .github/
     workflows/
       deploy.yml                 # GitHub Actions CI/CD pipeline
   vite.config.ts
+  vitest.config.ts
   tsconfig.app.json
   tsconfig.json
   eslint.config.js
