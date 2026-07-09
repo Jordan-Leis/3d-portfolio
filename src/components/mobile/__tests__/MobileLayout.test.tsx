@@ -2,23 +2,24 @@ import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import type { ReactNode } from 'react'
 import MobileLayout from '../MobileLayout'
 
 // Mock framer-motion: whileInView uses IntersectionObserver which jsdom does not provide.
 // Replace motion.* with plain intrinsic elements that forward all props through.
-vi.mock('framer-motion', () => {
-  const React = require('react')
+vi.mock('framer-motion', async () => {
+  const React = await import('react')
   const handler = {
     get(_: unknown, tag: string) {
       return React.forwardRef(
         (
           { children, initial: _i, whileInView: _w, viewport: _v, transition: _t, animate: _a, exit: _ex, ...rest }: Record<string, unknown>,
           ref: unknown,
-        ) => React.createElement(tag, { ...rest, ref }, children),
+        ) => React.createElement(tag, { ...rest, ref }, children as ReactNode),
       )
     },
   }
-  return { motion: new Proxy({}, handler), AnimatePresence: ({ children }: { children: unknown }) => children }
+  return { motion: new Proxy({}, handler), AnimatePresence: ({ children }: { children: ReactNode }) => children }
 })
 
 // Mock ContactForm at the module boundary: it pulls in @formspree/react which
