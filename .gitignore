@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Raw source assets (uncompressed GLBs) — working files, not for the repo
+temp_models/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
